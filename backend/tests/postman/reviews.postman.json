@@ -1,0 +1,306 @@
+{
+  "info": {
+    "name": "SkillCerts - Reviews",
+    "description": "Course review and rating endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reviewId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Get Course Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "course", "{{courseId}}"]
+            },
+            "description": "Get all reviews for a course with rating distribution"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Reviews - Paginated",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/course/{{courseId}}?page=1&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "course", "{{courseId}}"],
+              "query": [
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "5"}
+              ]
+            },
+            "description": "Get reviews with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Reviews - Filter by Rating",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/course/{{courseId}}?rating=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "course", "{{courseId}}"],
+              "query": [{"key": "rating", "value": "5"}]
+            },
+            "description": "Get only 5-star reviews"
+          },
+          "response": []
+        }
+      ],
+      "description": "Public review endpoints (no auth required)"
+    },
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Create Review",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('reviewId', jsonData.data._id);",
+                  "    console.log('Review created successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"This is an excellent course! I learned so much and the instructor was very clear in explaining complex concepts.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            },
+            "description": "Create a review (must be enrolled in course)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Updated my review after completing the course. Great content overall, would recommend!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            },
+            "description": "Update existing review"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Review for Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/my/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "my", "{{courseId}}"]
+            },
+            "description": "Get my review for a specific course"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All My Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "my"]
+            },
+            "description": "Get all reviews created by current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            },
+            "description": "Delete your review for a course"
+          },
+          "response": []
+        }
+      ],
+      "description": "Student review management"
+    },
+    {
+      "name": "Error Tests",
+      "item": [
+        {
+          "name": "Create Review - Not Enrolled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Trying to review without enrollment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/<unenrolled_course_id>",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "<unenrolled_course_id>"]
+            },
+            "description": "Test creating review without enrollment (should return 403)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review - Invalid Rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 6,\n  \"comment\": \"Invalid rating value\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            },
+            "description": "Test invalid rating (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review - Comment Too Short",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Short\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            },
+            "description": "Test comment too short (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review - Duplicate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Trying to create duplicate review\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{courseId}}"]
+            },
+            "description": "Test creating duplicate review (should return 409)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Review - Not Exists",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reviews/<course_without_review>",
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "<course_without_review>"]
+            },
+            "description": "Test updating non-existent review (should return 404)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Review error scenarios"
+    }
+  ]
+}

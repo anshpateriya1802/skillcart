@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "SkillCerts - Certificates",
+    "description": "Certificate generation and verification endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "certificateId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Generate Certificate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('certificateId', jsonData.data.certificateId);",
+                  "    console.log('Certificate generated: ' + jsonData.data.certificateId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/generate/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "generate", "{{courseId}}"]
+            },
+            "description": "Generate certificate for completed course (course must be 100% complete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Certificates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "my"]
+            },
+            "description": "Get all certificates for current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Certificate for Course",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "course", "{{courseId}}"]
+            },
+            "description": "Get certificate for specific course"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Certificate PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/download/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "download", "{{courseId}}"]
+            },
+            "description": "Download certificate as PDF file"
+          },
+          "response": []
+        }
+      ],
+      "description": "Student certificate management"
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Verify Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/verify/{{certificateId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "verify", "{{certificateId}}"]
+            },
+            "description": "Publicly verify certificate authenticity using certificate ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Public certificate verification"
+    },
+    {
+      "name": "Error Tests",
+      "item": [
+        {
+          "name": "Generate Certificate - Course Not Completed",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/generate/<incomplete_course_id>",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "generate", "<incomplete_course_id>"]
+            },
+            "description": "Test generating certificate for incomplete course (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Certificate - Not Enrolled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/generate/<unenrolled_course_id>",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "generate", "<unenrolled_course_id>"]
+            },
+            "description": "Test generating certificate without enrollment (should return 404)"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Certificate - Not Found",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/download/<course_without_certificate>",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "download", "<course_without_certificate>"]
+            },
+            "description": "Test downloading non-existent certificate (should return 404)"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Certificate - Invalid ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/verify/INVALID-CERT-ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "verify", "INVALID-CERT-ID"]
+            },
+            "description": "Test verifying invalid certificate ID (should return 404)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Certificate error scenarios"
+    }
+  ]
+}

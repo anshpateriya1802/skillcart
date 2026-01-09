@@ -1,0 +1,327 @@
+{
+  "info": {
+    "name": "SkillCerts - Lectures",
+    "description": "Lecture management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sectionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lectureId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lectureId2",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Get Section Lectures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "{{sectionId}}"]
+            },
+            "description": "Get all lectures in a section (public for published courses)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Lecture (Preview)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/lectures/{{lectureId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "{{lectureId}}"]
+            },
+            "description": "Get preview lecture (isPreview: true) - no enrollment required"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Lecture (Enrolled)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lectures/{{lectureId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "{{lectureId}}"]
+            },
+            "description": "Get lecture (requires enrollment if not preview)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Public/student lecture access"
+    },
+    {
+      "name": "Instructor",
+      "item": [
+        {
+          "name": "Create Lecture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('lectureId', jsonData.data._id);",
+                  "    console.log('Lecture created: ' + jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction to the Topic\",\n  \"videoUrl\": \"https://example.com/video.mp4\",\n  \"duration\": 600,\n  \"isPreview\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "{{sectionId}}"]
+            },
+            "description": "Create lecture (order auto-assigned)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Lecture with Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('lectureId2', jsonData.data._id);",
+                  "    console.log('Lecture 2 created: ' + jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced Concepts\",\n  \"videoUrl\": \"https://example.com/video2.mp4\",\n  \"duration\": 900,\n  \"isPreview\": false,\n  \"order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "{{sectionId}}"]
+            },
+            "description": "Create lecture with custom order"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lecture",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Lecture Title\",\n  \"duration\": 720,\n  \"isPreview\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/{{lectureId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "{{lectureId}}"]
+            },
+            "description": "Update lecture details"
+          },
+          "response": []
+        },
+        {
+          "name": "Reorder Lectures",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lectureIds\": [\n    \"{{lectureId2}}\",\n    \"{{lectureId}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/{{sectionId}}/reorder",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "{{sectionId}}", "reorder"]
+            },
+            "description": "Bulk reorder lectures (array order determines new lecture order)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lecture",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lectures/{{lectureId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "{{lectureId}}"]
+            },
+            "description": "Delete lecture"
+          },
+          "response": []
+        }
+      ],
+      "description": "Instructor/Admin lecture management"
+    },
+    {
+      "name": "Error Tests",
+      "item": [
+        {
+          "name": "Create Lecture - No Auth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unauthorized Lecture\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "{{sectionId}}"]
+            },
+            "description": "Test creating lecture without auth (should return 401)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Lecture - Not Instructor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Forbidden Lecture\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/<other_instructor_section_id>",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "<other_instructor_section_id>"]
+            },
+            "description": "Test creating lecture in another instructor's section (should return 403)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Lecture - Invalid Video URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Lecture\",\n  \"videoUrl\": \"not-a-valid-url\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/section/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "section", "{{sectionId}}"]
+            },
+            "description": "Test invalid video URL validation (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lecture - Not Enrolled",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lectures/<non_preview_lecture_id>",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "<non_preview_lecture_id>"]
+            },
+            "description": "Test accessing non-preview lecture without enrollment (should return 403)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lecture - Not Found",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/lectures/65f1a2b3c4d5e6f7g8h9i0j1",
+              "host": ["{{baseUrl}}"],
+              "path": ["lectures", "65f1a2b3c4d5e6f7g8h9i0j1"]
+            },
+            "description": "Test updating non-existent lecture (should return 404)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Lecture error scenarios"
+    }
+  ]
+}

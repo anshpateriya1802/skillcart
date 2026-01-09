@@ -1,0 +1,316 @@
+{
+  "info": {
+    "name": "SkillCerts - Sections",
+    "description": "Course section management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sectionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sectionId2",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Get Course Sections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}"]
+            },
+            "description": "Get all sections for a course with lectures (public for published courses)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Section",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sections/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "{{sectionId}}"]
+            },
+            "description": "Get single section with lectures"
+          },
+          "response": []
+        }
+      ],
+      "description": "Public section endpoints (no auth required for published courses)"
+    },
+    {
+      "name": "Instructor",
+      "item": [
+        {
+          "name": "Create Section",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('sectionId', jsonData.data._id);",
+                  "    console.log('Section created: ' + jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Introduction to the Course\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}"]
+            },
+            "description": "Create section (order auto-assigned)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Section with Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('sectionId2', jsonData.data._id);",
+                  "    console.log('Section 2 created: ' + jsonData.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced Topics\",\n  \"order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}"]
+            },
+            "description": "Create section with custom order"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Section",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Getting Started with the Course\",\n  \"order\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "{{sectionId}}"]
+            },
+            "description": "Update section title and order"
+          },
+          "response": []
+        },
+        {
+          "name": "Reorder Sections",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionIds\": [\n    \"{{sectionId2}}\",\n    \"{{sectionId}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}/reorder",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}", "reorder"]
+            },
+            "description": "Bulk reorder sections (array order determines new section order)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Section",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sections/{{sectionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "{{sectionId}}"]
+            },
+            "description": "Delete section and all its lectures"
+          },
+          "response": []
+        }
+      ],
+      "description": "Instructor/Admin section management"
+    },
+    {
+      "name": "Error Tests",
+      "item": [
+        {
+          "name": "Create Section - No Auth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unauthorized Section\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}"]
+            },
+            "description": "Test creating section without auth (should return 401)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Section - Not Instructor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Forbidden Section\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/<other_instructor_course_id>",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "<other_instructor_course_id>"]
+            },
+            "description": "Test creating section in another instructor's course (should return 403)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Section - Title Too Short",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Hi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}"]
+            },
+            "description": "Test title validation (should return 400)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Section - Not Found",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Section\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/65f1a2b3c4d5e6f7g8h9i0j1",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "65f1a2b3c4d5e6f7g8h9i0j1"]
+            },
+            "description": "Test updating non-existent section (should return 404)"
+          },
+          "response": []
+        },
+        {
+          "name": "Reorder - Invalid Array",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sectionIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sections/course/{{courseId}}/reorder",
+              "host": ["{{baseUrl}}"],
+              "path": ["sections", "course", "{{courseId}}", "reorder"]
+            },
+            "description": "Test reordering with empty array (should return 400)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Section error scenarios"
+    }
+  ]
+}

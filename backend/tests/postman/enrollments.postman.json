@@ -1,0 +1,293 @@
+{
+  "info": {
+    "name": "SkillCerts - Enrollments",
+    "description": "Enrollment management endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Enroll in Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('enrollmentId', jsonData.data._id);",
+                  "    console.log('Enrolled successfully');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"]
+            },
+            "description": "Enroll in a course (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "my"]
+            },
+            "description": "Get all enrollments for current user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Enrollments - Ongoing",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/my?status=ongoing",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "my"],
+              "query": [{"key": "status", "value": "ongoing"}]
+            },
+            "description": "Get only ongoing enrollments"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Enrollments - Completed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/my?status=completed",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "my"],
+              "query": [{"key": "status", "value": "completed"}]
+            },
+            "description": "Get only completed enrollments"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Enrollment Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}"]
+            },
+            "description": "Get single enrollment with progress"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Enrollment Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/check/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "check", "{{courseId}}"]
+            },
+            "description": "Check if user is enrolled in a course"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Course as Completed",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}", "complete"]
+            },
+            "description": "Mark a course as completed"
+          },
+          "response": []
+        },
+        {
+          "name": "Unenroll from Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}"]
+            },
+            "description": "Unenroll from a course (cannot unenroll if completed)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Student enrollment endpoints"
+    },
+    {
+      "name": "Instructor",
+      "item": [
+        {
+          "name": "Get Course Enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "course", "{{courseId}}"]
+            },
+            "description": "Get all enrollments for a course (instructor/admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Instructor enrollment management"
+    },
+    {
+      "name": "Error Tests",
+      "item": [
+        {
+          "name": "Enroll - No Auth",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"]
+            },
+            "description": "Test unauthorized access (should return 401)"
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll - Already Enrolled",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"{{courseId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"]
+            },
+            "description": "Test duplicate enrollment (should return 409)"
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll - Course Not Found",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": \"65f1a2b3c4d5e6f7g8h9i0j1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/enrollments",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments"]
+            },
+            "description": "Test enrolling in non-existent course (should return 404)"
+          },
+          "response": []
+        },
+        {
+          "name": "Unenroll - Completed Course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{authToken}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/enrollments/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["enrollments", "{{courseId}}"]
+            },
+            "description": "Test unenrolling from completed course (should return 400)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Enrollment error tests"
+    }
+  ]
+}
